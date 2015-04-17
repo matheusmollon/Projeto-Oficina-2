@@ -99,16 +99,16 @@ public class SerialPortReader implements SerialPortEventListener {
 			try {
 				Byte inputLine=(byte)input.read();
                                 dataReceived = new String(new byte[] {inputLine});
-                                if(dataReceived.equalsIgnoreCase("(")){
+                                if(dataReceived.equalsIgnoreCase("(") && answer.length()==0){
                                     pakageReceived = true;
                                 }
-                                if(pakageReceived==true && answer.length()<3){
+                                else if(pakageReceived==true && answer.length()<3){
                                     temperature += dataReceived;
                                 }
-                                if(pakageReceived == true && (answer.length()>2 && answer.length()<=5)){
+                                else if(pakageReceived == true && (answer.length()>2 && answer.length()<=5)){
                                     humidity +=dataReceived;                                    
                                 }
-                                if(dataReceived.equalsIgnoreCase(")") && answer.length()== 5){
+                                else if(dataReceived.equalsIgnoreCase(")") && answer.length()== 5){
                                     System.out.println("Pacote recebido com sucesso e pronto para ser salvo! Recebido: "+answer+")");
                                     freeBuffer();
                                 }
