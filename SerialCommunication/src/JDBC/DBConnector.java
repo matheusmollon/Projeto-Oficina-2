@@ -15,7 +15,7 @@ import java.sql.SQLException;
  */
 public class DBConnector {
     private static String driver = "com.mysql.jdbc.Driver";
-    private static String serverName = "http://p3plcpnl0206.prod.phx3.secureserver.net:3306"; 
+    private static String serverName = "p3plcpnl0206.prod.phx3.secureserver.net"; 
     private static String user = "apoo_endo";
     private static String password = "Aquaticchinchila1";
     private static Boolean status = false;
@@ -29,7 +29,7 @@ public class DBConnector {
         Connection connector = null;
         try{
             Class.forName(driver);
-            String url = "jdbc:mysql://"+serverName+"/base_apoo";
+            String url = "jdbc:mysql://"+serverName+"/apoo";
             connector = DriverManager.getConnection(url, user, password);
             status = true;
             return connector;
