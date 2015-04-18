@@ -1,6 +1,7 @@
 
 package rxtx;
 
+import JDBC.DBConnector;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -8,6 +9,8 @@ import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent; 
 import gnu.io.SerialPortEventListener; 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Enumeration;
 
 
@@ -39,6 +42,20 @@ public class SerialPortReader implements SerialPortEventListener {
         private String humidity = "";
         // Flag to see if data it's being received
         private boolean pakageReceived = false;
+        // Object to hold the connection with the database
+        private Connection dataBaseConnection = null;
+
+        public SerialPortReader() throws ClassNotFoundException, SQLException {
+            this.dataBaseConnection = DBConnector.getDataBaseConnection();
+        }
+        
+        
+        
+        
+        
+              
+        
+        
         // Initialize the serial port
         // get the name of the serial ports and start communication
 	public void initialize() {
