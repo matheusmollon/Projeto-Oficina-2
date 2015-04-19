@@ -32,6 +32,7 @@ public class DBConnector {
             String url = "jdbc:mysql://"+serverName+"/apoo";
             connector = DriverManager.getConnection(url, user, password);
             status = true;
+            System.out.println("Conectou-se à base de dados com sucesso.");
             return connector;
         }catch(ClassNotFoundException e){
             System.out.println("Não foi possível localizar o driver: "+e.getMessage());

@@ -10,7 +10,11 @@ import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent; 
 import gnu.io.SerialPortEventListener; 
 import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.Enumeration;
 
 
@@ -46,7 +50,14 @@ public class SerialPortReader implements SerialPortEventListener {
         private Connection dataBaseConnection = null;
 
         public SerialPortReader() throws ClassNotFoundException, SQLException {
-            this.dataBaseConnection = DBConnector.getDataBaseConnection();
+            try{
+                this.dataBaseConnection = DBConnector.getDataBaseConnection();
+            }catch(SQLException e){
+                System.out.println("Não foi possível conectar-se a base de dados. Erro:"+ e.getMessage());
+            }catch(ClassNotFoundException e){
+                System.out.println("Driver da base de dados não localizado. Erro: "+ e.getMessage());
+            }
+            
         }
         
         
@@ -127,7 +138,25 @@ public class SerialPortReader implements SerialPortEventListener {
                                 }
                                 else if(dataReceived.equalsIgnoreCase(")") && answer.length()== 5){
                                     System.out.println("Pacote recebido com sucesso e pronto para ser salvo! Recebido: "+answer+")");
+                                    try{
+                                    String sqlQuerry = "INSERT (temperatura,humidade,data,hora) INTO MEDIDA VALUES(?,?,?,?)";
+                                    PreparedStatement preparedState = dataBaseConnection.prepareStatement(sqlQuerry);
+                                    preparedState.setInt(1, Integer.parseInt(temperature));
+                                    preparedState.setInt(2, Integer.parseInt(humidity));
+                                    String date = "dd/MM/yyyy";
+                                    String hour = "h:mm - a";
+                                    java.util.Date now = new java.util.Date();
+                                    SimpleDateFormat dateHourFormat = new SimpleDateFormat(date);
+                                    preparedState.setDate(3, Date.valueOf(dateHourFormat.format(now)) );
+                                    System.out.println("Data: "+dateHourFormat.format(now));
+                                    dateHourFormat = new SimpleDateFormat(hour);  
+                                    preparedState.setTime(4, Time.valueOf(dateHourFormat.format(now)) );
+                                    System.out.println("Hora: "+dateHourFormat.format(now));
+                                    
                                     freeBuffer();
+                                    }catch(SQLException e){
+                                        
+                                    }
                                 }
                                 else{
                                     System.out.println("Falha na recepção do pacote, esvaziando buffers");
@@ -158,7 +187,7 @@ public class SerialPortReader implements SerialPortEventListener {
                 
                 SerialPortReader main = new SerialPortReader();
 		main.initialize();
-		Thread t=new Thread() {
+		Thread t = new Thread() {
 			public void run() {
 				try {Thread.sleep(10);} catch (InterruptedException ie) {}
 			}
