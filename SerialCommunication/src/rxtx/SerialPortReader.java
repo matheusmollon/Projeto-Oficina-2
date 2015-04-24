@@ -47,7 +47,7 @@ public class SerialPortReader implements SerialPortEventListener {
         // Flag to see if data it's being received
         private boolean pakageReceived = false;
         // Object to hold the connection with the database
-        private Connection dataBaseConnection = null;
+        private static Connection dataBaseConnection = null;
 
         public SerialPortReader() throws ClassNotFoundException, SQLException {
             try{
@@ -127,35 +127,31 @@ public class SerialPortReader implements SerialPortEventListener {
 			try {
 				Byte inputLine=(byte)input.read();
                                 dataReceived = new String(new byte[] {inputLine});
-                                if(dataReceived.equalsIgnoreCase("(") && answer.length()==0){
+                                if(dataReceived.equalsIgnoreCase("(")){
+                                    System.out.println("Pacote recebido. Iniciar leitura");
                                     pakageReceived = true;
+                                    answer = "";
                                 }
                                 else if(pakageReceived==true && answer.length()<3){
+                                    System.out.println("Recebendo o valor da temperatura");
                                     temperature += dataReceived;
                                 }
-                                else if(pakageReceived == true && (answer.length()>2 && answer.length()<=5)){
+                                else if(pakageReceived == true && (answer.length()>2 && answer.length()<5)){
+                                    System.out.println("Recebendo o valor de humidade");
                                     humidity +=dataReceived;                                    
                                 }
                                 else if(dataReceived.equalsIgnoreCase(")") && answer.length()== 5){
                                     System.out.println("Pacote recebido com sucesso e pronto para ser salvo! Recebido: "+answer+")");
                                     try{
-                                    String sqlQuerry = "INSERT (temperatura,humidade,data,hora) INTO MEDIDA VALUES(?,?,?,?)";
+                                    String sqlQuerry = "INSERT INTO Medida (temperatura,humidade,data,hora) VALUES(?,?,now(),now());";
                                     PreparedStatement preparedState = dataBaseConnection.prepareStatement(sqlQuerry);
                                     preparedState.setInt(1, Integer.parseInt(temperature));
                                     preparedState.setInt(2, Integer.parseInt(humidity));
-                                    String date = "dd/MM/yyyy";
-                                    String hour = "h:mm - a";
-                                    java.util.Date now = new java.util.Date();
-                                    SimpleDateFormat dateHourFormat = new SimpleDateFormat(date);
-                                    preparedState.setDate(3, Date.valueOf(dateHourFormat.format(now)) );
-                                    System.out.println("Data: "+dateHourFormat.format(now));
-                                    dateHourFormat = new SimpleDateFormat(hour);  
-                                    preparedState.setTime(4, Time.valueOf(dateHourFormat.format(now)) );
-                                    System.out.println("Hora: "+dateHourFormat.format(now));
-                                    
+                                    preparedState.executeUpdate();
+                                    System.out.println("Dados salvos com sucesso!");
                                     freeBuffer();
                                     }catch(SQLException e){
-                                        
+                                        System.out.println("Não foi possível salvar na base: "+e.getMessage());
                                     }
                                 }
                                 else{
@@ -189,10 +185,24 @@ public class SerialPortReader implements SerialPortEventListener {
 		main.initialize();
 		Thread t = new Thread() {
 			public void run() {
-				try {Thread.sleep(10);} catch (InterruptedException ie) {}
+				try{
+                                    Thread.sleep(10);
+                                    
+                                }catch (InterruptedException ie) {
+                                    
+                                }
 			}
 		};
 		t.start();
+                
 		System.out.println("Started");
+                String date = "dd/MM/yyyy";
+                String hour = "h:mm - a";
+                java.util.Date now = new java.util.Date();
+                SimpleDateFormat dateHourFormat = new SimpleDateFormat(date);
+                System.out.println("Date: "+dateHourFormat.format(now));
+                dateHourFormat = new SimpleDateFormat(hour);
+                System.out.println("Hour: "+dateHourFormat.format(now));
+//              
 	}
 }
