@@ -16,18 +16,20 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Enumeration;
+import java.util.HashMap;
 
 
-public class SerialPortReader implements SerialPortEventListener {
+public class SerialPortReader extends Thread implements SerialPortEventListener {
 	SerialPort serialPort;
         /** Ports names by S.O. **/
 	private static final String PORT_NAMES[] = { 
 			"/dev/tty.usbserial-A9007UX1", // Mac OS X
                         "/dev/ttyACM0", // Raspberry Pi
 			"/dev/ttyUSB0", // Linux
-			"COM3", // Windows
+			"COM4", // Windows
 	};
-        
+        // Port name index
+        private int portIndex;
         //To read the bytes in the serial port
 	private BufferedReader input;
 	// The output stream to the port 
@@ -48,21 +50,35 @@ public class SerialPortReader implements SerialPortEventListener {
         private boolean pakageReceived = false;
         // Object to hold the connection with the database
         private static Connection dataBaseConnection = null;
+        // Object to hold de data base mannager
+        private DBConnector dataBaseMannager = null;
+        // Boolean to see if the connection is on
+        private boolean isConnected = false;
 
-        public SerialPortReader() throws ClassNotFoundException, SQLException {
-            try{
-                this.dataBaseConnection = DBConnector.getDataBaseConnection();
-            }catch(SQLException e){
-                System.out.println("Não foi possível conectar-se a base de dados. Erro:"+ e.getMessage());
-            }catch(ClassNotFoundException e){
-                System.out.println("Driver da base de dados não localizado. Erro: "+ e.getMessage());
-            }
+        public SerialPortReader(){
             
         }
         
         
         
-        
+        @Override
+        public void run(){
+            System.out.println("Começou: " + this.getName());
+            //instancia o objeto de manuseio de conexão
+            dataBaseMannager = new DBConnector();
+            //Tenta abrir a conexão com o banco de dados
+            try {
+                dataBaseConnection = DBConnector.getDataBaseConnection();
+            } catch (Exception ex1) {
+                System.out.println(ex1.toString());
+            }
+            this.initialize();
+            
+            while(this.portaSerialPresente() && dataBaseMannager.isConnected()){
+            
+            }
+
+        }
         
               
         
@@ -77,12 +93,15 @@ public class SerialPortReader implements SerialPortEventListener {
 		//First, Find an instance of serial port as set in PORT_NAMES.
 		while (portEnum.hasMoreElements()) {
 			CommPortIdentifier currPortId = (CommPortIdentifier) portEnum.nextElement();
+                        int count = 0;
 			for (String portName : PORT_NAMES) {
                             System.out.println("achei "+portName);
 				if (currPortId.getName().equals(portName)) {
 					portId = currPortId;
+                                        portIndex = count;
 					break;
 				}
+                            count++;    
 			}
 		}
 		if (portId == null) {
@@ -111,6 +130,7 @@ public class SerialPortReader implements SerialPortEventListener {
 		} catch (Exception e) {
 			System.err.println(e.toString());
 		}
+                isConnected = true; 
 	}
 
 	//close the serial port
@@ -120,6 +140,44 @@ public class SerialPortReader implements SerialPortEventListener {
 			serialPort.close();
 		}
 	}
+        
+         public static HashMap procurarPortas() {
+        
+                //Cria o HashMap para guardar as portas
+                HashMap portaMap = new HashMap();
+
+                //Cria o Enumeration que vai receber as portas
+                Enumeration portas = null;
+
+                //Pega os identificadores das portas
+                portas = CommPortIdentifier.getPortIdentifiers();
+
+                while (portas.hasMoreElements()) {
+
+                    CommPortIdentifier portaAtual = (CommPortIdentifier) portas.nextElement();
+
+                    //seleciona apenas as portas que são seriais
+                    if (portaAtual.getPortType() == CommPortIdentifier.PORT_SERIAL) {
+
+                        //Mapeia a porta para poder trabalhar com ela a partir de seu nome
+                        portaMap.put(portaAtual.getName(), portaAtual);
+                    }
+                }
+
+            return portaMap;
+        }
+         
+         public boolean portaSerialPresente() {
+
+            //Pega as portas disponíveis
+            HashMap portasDisponiveis = SerialPortReader.procurarPortas();
+
+            if (portasDisponiveis.get(PORT_NAMES[portIndex]) != null) {
+                return true;
+            } else {
+                return false;
+            }
+        }
 
 	//event to read the serial port
 	public synchronized void serialEvent(SerialPortEvent oEvent) {
@@ -143,7 +201,7 @@ public class SerialPortReader implements SerialPortEventListener {
                                 else if(dataReceived.equalsIgnoreCase(")") && answer.length()== 5){
                                     System.out.println("Pacote recebido com sucesso e pronto para ser salvo! Recebido: "+answer+")");
                                     try{
-                                    String sqlQuerry = "INSERT INTO Medida (temperatura,humidade,data,hora) VALUES(?,?,now(),now());";
+                                    String sqlQuerry = "INSERT INTO Medida (temperatura,humidade,data,hora) VALUES(?,?,now(),(now()+interval 4 hour));";
                                     PreparedStatement preparedState = dataBaseConnection.prepareStatement(sqlQuerry);
                                     preparedState.setInt(1, Integer.parseInt(temperature));
                                     preparedState.setInt(2, Integer.parseInt(humidity));

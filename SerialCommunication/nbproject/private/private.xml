@@ -3,8 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/Felipe/Documents/GitHub/Projeto-Oficina-2/SerialCommunication/src/mainClass/ComunicacaoSerial.java</file>
+            <file>file:/C:/Users/Felipe/Documents/GitHub/Projeto-Oficina-2/SerialCommunication/src/mainClass/LeitorSerial.java</file>
             <file>file:/C:/Users/Felipe/Documents/GitHub/Projeto-Oficina-2/SerialCommunication/src/rxtx/SerialPortReader.java</file>
-            <file>file:/C:/Users/Felipe/Documents/GitHub/Projeto-Oficina-2/SerialCommunication/src/JDBC/DBConnector.java</file>
+            <file>file:/C:/Users/Felipe/Documents/GitHub/Projeto-Oficina-2/SerialCommunication/src/mainClass/IniciaInterface.java</file>
         </group>
     </open-files>
 </project-private>
