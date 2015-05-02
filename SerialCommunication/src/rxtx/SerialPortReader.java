@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
 
 
 public class SerialPortReader implements SerialPortEventListener {
@@ -48,6 +49,9 @@ public class SerialPortReader implements SerialPortEventListener {
         private boolean pakageReceived = false;
         // Object to hold the connection with the database
         private static Connection dataBaseConnection = null;
+        
+             
+               
 
         public SerialPortReader() throws ClassNotFoundException, SQLException {
             try{
@@ -123,6 +127,11 @@ public class SerialPortReader implements SerialPortEventListener {
 
 	//event to read the serial port
 	public synchronized void serialEvent(SerialPortEvent oEvent) {
+             String date = "dd/MM/yyyy";
+                String hour = "h:mm - a";
+                java.util.Date now = new java.util.Date();
+                SimpleDateFormat dateHourFormat = new SimpleDateFormat(date);
+                dateHourFormat = new SimpleDateFormat(hour);
 		if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
 			try {
 				Byte inputLine=(byte)input.read();
@@ -199,10 +208,12 @@ public class SerialPortReader implements SerialPortEventListener {
                 String date = "dd/MM/yyyy";
                 String hour = "h:mm - a";
                 java.util.Date now = new java.util.Date();
+                
                 SimpleDateFormat dateHourFormat = new SimpleDateFormat(date);
                 System.out.println("Date: "+dateHourFormat.format(now));
                 dateHourFormat = new SimpleDateFormat(hour);
                 System.out.println("Hour: "+dateHourFormat.format(now));
-//              
-	}
+              
+                
+        }
 }
