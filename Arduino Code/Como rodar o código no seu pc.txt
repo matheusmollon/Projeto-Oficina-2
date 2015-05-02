@@ -1,9 +1,0 @@
-Para rodar os códigos confeccionados no arduino, você deverá seguir os seguintes passos:
-
-1- Copiar as pastas teste e Projeto_Oficina_2 para o diretório do Arduino no seu PC. (Normalmente está nos Documentos ou Meus Documentos)
-
-2- Copiar as pastas de libraries para a pasta libraries presente na pasta do arduino no seu PC 
-
-3- Abrir o projeto no IDE e compilar
-
-ENJOY !!!!!!!!!!!!1
