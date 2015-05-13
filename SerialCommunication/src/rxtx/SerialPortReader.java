@@ -201,6 +201,11 @@ public class SerialPortReader extends Thread implements SerialPortEventListener 
                                 else if(dataReceived.equalsIgnoreCase(")") && answer.length()== 5){
                                     System.out.println("Pacote recebido com sucesso e pronto para ser salvo! Recebido: "+answer+")");
                                     try{
+                                         try {
+                                                 dataBaseConnection = DBConnector.getDataBaseConnection();
+                                         } catch (Exception ex1) {
+                                                System.out.println(ex1.toString());
+                                         }
                                     String sqlQuerry = "INSERT INTO Medida (temperatura,humidade,data,hora) VALUES(?,?,now(),(now()+interval 4 hour));";
                                     PreparedStatement preparedState = dataBaseConnection.prepareStatement(sqlQuerry);
                                     preparedState.setInt(1, Integer.parseInt(temperature));
@@ -217,6 +222,7 @@ public class SerialPortReader extends Thread implements SerialPortEventListener 
                                     freeBuffer();
                                 }
                                 answer += dataReceived;
+                                System.out.println("ESD"+answer);
 				
 			} catch (Exception e) {
                                 System.out.println("é nóis o/");
